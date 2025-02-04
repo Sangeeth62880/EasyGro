@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # PROJECT
 =======
 # Getting Started with Create React App
@@ -72,3 +73,8 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 >>>>>>> 6eaacbe (Initial commit)
+=======
+# Project Title
+
+This is the updated README file with local and remote changes.
+>>>>>>> f61d6d8f0d99c039bd729d90af4c01f2f84711c0
