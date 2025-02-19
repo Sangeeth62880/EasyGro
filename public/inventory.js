@@ -1,28 +1,98 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const inventoryContainer = document.getElementById('inventoryContainer');
-    const products = [
-        { id: 1, name: 'Apples', quantity: 15, image: 'images/apples.jpg' },
-        { id: 2, name: 'Bread', quantity: 8, image: 'images/bread.jpg' },
-        { id: 3, name: 'Eggs', quantity: 0, image: 'images/egg.jpg' },
-        { id: 4, name: 'Milk', quantity: 4, image: 'images/milk.jpg' },
-        { id: 5, name: 'Spinach', quantity: 12, image: 'images/spinach.jpg' },
-        { id: 6, name: 'Greek Yogurt', quantity: 0, image: 'images/yogurt.jpg' },
-        { id: 7, name: 'Carrot', quantity: 15, image: 'images/carrot.jpg' },
-        { id: 8, name: 'Cheese', quantity: 8, image: 'images/cheese.jpg' },
-        { id: 9, name: 'Banana', quantity: 0, image: 'images/banana.jpg' },
-        { id: 10, name: 'Strawberry', quantity: 0, image: 'images/strawberry.jpg' },
-        { id: 11, name: 'Avacado', quantity: 0, image: 'images/avacado.jpg' },
-        { id: 12, name: 'Orange', quantity: 0, image: 'images/orange.jpg' },
-        { id: 13, name: 'Choclate', quantity: 0, image: 'images/choclate.jpg' },
-       
-    
-    ];
+    const user_id = localStorage.getItem('user_id');
+    // Get or initialize handled items from localStorage
+    const handledLowStockItems = JSON.parse(localStorage.getItem('handledLowStockItems') || '[]');
 
-    const renderProducts = () => {
+    if (!user_id) {
+        window.location.href = '/login.html';
+        return;
+    }
+
+    const fetchInventory = async () => {
+        try {
+            const response = await fetch(`http://localhost:5001/inventory/${user_id}`);
+            const products = await response.json();
+            renderProducts(products);
+        } catch (error) {
+            console.error('Error fetching inventory:', error);
+            inventoryContainer.innerHTML = '<p class="error">Failed to load inventory</p>';
+        }
+    };
+
+    const handleLowStock = async (products) => {
+        try {
+            const cartResponse = await fetch(`http://localhost:5001/cart/${user_id}`);
+            const cartItems = await cartResponse.json();
+
+            const lowStockItems = products.filter(product => {
+                const cartItem = cartItems.find(ci => { return ci.product_id === product.id; });
+                const totalQuantity = product.quantity + (cartItem ? cartItem.quantity : 0);
+                return product.quantity >= 0 &&
+                    totalQuantity < 2 &&
+                    !cartItem;
+            });
+
+            for (const item of lowStockItems) {
+                const cartItem = cartItems.find(ci => ci.product_id === item.id);
+                const totalQuantity = item.quantity + (cartItem ? cartItem.quantity : 0);
+                const quantityNeeded = 5 - totalQuantity;
+
+                const response = await fetch("http://localhost:5001/cart", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_id: parseInt(user_id),
+                        product_id: item.id,
+                        quantity: quantityNeeded
+                    })
+                });
+
+                if (response.ok) {
+                    showNotification(`Added ${quantityNeeded} ${item.name}(s) to cart due to low stock`);
+                }
+            }
+        } catch (error) {
+            console.error('Error handling low stock items:', error);
+        }
+    };
+
+    let notificationQueue = [];
+    let isShowingNotification = false;
+
+    const showNotification = async (message) => {
+        notificationQueue.push(message);
+        if (!isShowingNotification) {
+            processNotificationQueue();
+        }
+    };
+
+    const processNotificationQueue = async () => {
+        if (notificationQueue.length === 0) {
+            isShowingNotification = false;
+            return;
+        }
+
+        isShowingNotification = true;
+        const message = notificationQueue.shift();
+
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        notification.remove();
+
+        // Process next notification
+        processNotificationQueue();
+    };
+
+    const renderProducts = (products) => {
         inventoryContainer.innerHTML = products.map(product => `
             <div class="product-card">
-                ${product.quantity <= 5 && product.quantity > 0 ? 
-                    '<div class="low-stock">Low Stock</div>' : ''}
+                ${product.quantity > 0 && product.quantity <= 2 ?
+                '<div class="low-stock">Low Stock</div>' : ''}
                 <img src="${product.image}" alt="${product.name}" class="product-image">
                 <h3 class="product-name">${product.name}</h3>
                 <p class="product-quantity">Quantity: ${product.quantity}</p>
@@ -34,14 +104,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </div>
         `).join('');
+
+        // Check for low stock items and handle them
+        handleLowStock(products);
     };
 
     const handleReminderClick = (productId) => {
         const product = products.find(p => p.id === productId);
-        const action = product.quantity > 0 ? 
+        const action = product.quantity > 0 ?
             `We'll remind you when ${product.name} needs restocking!` :
             `We'll notify you when ${product.name} is back in stock!`;
-        
+
         alert(action);
         // Here you would typically make an API call to set the reminder
     };
@@ -53,6 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initial render
-    renderProducts();
+    // Initial fetch
+    await fetchInventory();
 });

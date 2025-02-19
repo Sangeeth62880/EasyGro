@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.querySelectorAll(".add-to-cart").forEach(button => {
         button.addEventListener("click", function () {
             cartCount++;
-            document.getElementById("cart-count").textContent = cartCount;
+            document.getElementById("cart-countx").textContent = cartCount;
             this.innerText = "Added!";
             this.style.backgroundColor = "#ff5722";
             setTimeout(() => {

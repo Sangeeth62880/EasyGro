@@ -75,14 +75,27 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await response.json();
 
                 if (response.ok) {
+                    // Store user data correctly from the response
                     localStorage.setItem("token", data.token);
-                    alert("Login successful!");
-                    window.location.href = "index.html"; // Redirect to homepage
+                    localStorage.setItem("user_id", data.user_id.toString());
+                    localStorage.setItem("username", data.username);
+                    
+                    // Show success message
+                    const popup = document.createElement('div');
+                    popup.className = 'popup';
+                    popup.textContent = 'Login successful!';
+                    document.body.appendChild(popup);
+                    
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = "/product.html";
+                    }, 1000);
                 } else {
-                    alert(data.error);
+                    alert(data.error || 'Login failed');
                 }
             } catch (error) {
                 console.error("Login Error:", error);
+                alert("An error occurred during login");
             }
         });
     }
