@@ -13,11 +13,11 @@
         <nav>
             <div class="logo">EasyGro</div>
             <ul class="nav-links">
-                <li><a href="#home" class="active">Home</a></li>
+                <li><a href="index.html" class="active">Home</a></li>
                 <li><a href="product.html">Products</a></li>
                 <li><a href="cart.html">Cart</a></li>
                 <li><a href="inventory.html">Inventory</a></li>
-                <li><a href="#profile">Profile</a></li>
+                <li><a href="profile.html">Profile</a></li>
                 <li><a href="login.html">Login</a></li>
             </ul>
             <div class="search-bar">
@@ -42,7 +42,15 @@
         <section id="hero">
             <h1>Automate Your Grocery Shopping</h1>
             <p>Never run out of stock again! We restock for you automatically.</p>
-            <button class="cta-button">Start Shopping</button>
+            <button class="cta-button" id="startShopping">Start Shopping</button>
+
+            <script>
+              document.getElementById("startShopping").addEventListener("click", function() {
+                window.location.href = "product.html";
+              });
+            </script>
+            
+
         </section>
 
         <section id="promotions">

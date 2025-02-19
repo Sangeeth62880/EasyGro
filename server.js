@@ -14,6 +14,13 @@ const SECRET_KEY = "your_secret_key";
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, "public")));
+
+// Import Routes
+
+
+// Use Routes
+
 
 // MySQL Connection
 const db = mysql.createConnection({
@@ -111,6 +118,7 @@ app.put('/cart/:id', (req, res) => {
         res.json({ message: 'Cart updated successfully' });
     });
 });
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

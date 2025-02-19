@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page - Grocery Management</title>
+    <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+    <div class="container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-img-container">
+                    <img id="profile-img" src="https://via.placeholder.com/150" alt="Profile Picture">
+                    <div class="img-overlay">
+                        <label for="img-upload" class="upload-btn">
+                            <span class="camera-icon">📷</span>
+                        </label>
+                        <input type="file" id="img-upload" accept="image/*" hidden>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" placeholder="Enter your name" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="Enter your email" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" placeholder="Enter your phone number" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="details">Additional Details</label>
+                        <textarea id="details" placeholder="Enter additional details" disabled></textarea>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" id="edit-btn" class="btn">Edit Profile</button>
+                        <button type="button" id="save-btn" class="btn btn-save" hidden>Save Changes</button>
+                        <button type="button" id="cancel-btn" class="btn btn-cancel" hidden>Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="profile.js"></script>
+</body>
+</html>
