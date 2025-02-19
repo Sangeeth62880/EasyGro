@@ -1,0 +1,47 @@
+<!-- inventory.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyGro - Inventory Management</title>
+   
+    <link rel="stylesheet" href="inventory.css">
+</head>
+<body>
+    
+    <div class="container">
+        <header>
+            <nav>
+                <div class="logo">EasyGro</div>
+                <ul class="nav-links">
+                    <li><a href="#home" class="active">Home</a></li>
+                    <li><a href="product.html">Products</a></li>
+                    <li><a href="cart.html">Cart</a></li>
+                    <li><a href="inventory.html">Inventory</a></li>
+                    <li><a href="#profile">Profile</a></li>
+                    <li><a href="login.html">Login</a></li>
+                </ul>
+                <div class="search-bar">
+                    <input type="text" placeholder="Search groceries...">
+                    <button><i class="fas fa-search"></i></button>
+                </div>
+                <button id="darkModeToggle" class="dark-mode-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </nav>
+        </header>
+
+        <div class="inventory-grid" id="inventoryContainer">
+            <!-- Product cards will be inserted here via JavaScript -->
+        </div>
+    </div>
+
+    <script src="inventory.js"></script>
+</body>
+</html>

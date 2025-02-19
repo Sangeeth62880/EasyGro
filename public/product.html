@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fresh Picks Grocery</title>
+    <link rel="stylesheet" href="product.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <div class="logo">EasyGro</div>
+
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#products">Products</a></li>
+                    <li><a href="#cart">Cart <span id="cart-count">0</span></a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <section id="products" class="container">
+            <h1 class="section-title">Our Freshest Picks </h1>
+            <div class="controls">
+                <select id="sort-options">
+                    <option value="default">Sort By</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                </select>
+            
+                <select id="filter-options">
+                    <option value="all">All Categories</option>
+                    <option value="fruits">Fruits</option>
+                    <option value="dairy">Dairy</option>
+                    <option value="beverages">Beverages</option>
+                    <option value="bakery">Bakery</option>
+                </select>
+            </div>
+            
+
+            <!-- Product Grid -->
+            <div class="product-grid">
+                <div class="product-card">
+                    <img src="images/apples.jpg" alt="Fresh Apples" class="product-image">
+                    <h2>Fresh Apples</h2>
+                    <p class="price">$2.99/lb</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/carrots.jpg" alt="Fresh Carrots" class="product-image">
+                    <h2>Fresh Carrots</h2>
+                    <p class="price">$1.99/bunch</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/cheese.jpg" alt="Cheddar Cheese" class="product-image">
+                    <h2>Cheddar Cheese</h2>
+                    <p class="price">$4.99/block</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/dark chocolate.jpg" alt="Dark Chocolate" class="product-image">
+                    <h2>Dark Chocolate</h2>
+                    <p class="price">$3.50/bar</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/orange juice.jpg" alt="Orange Juice" class="product-image">
+                    <h2>Orange Juice</h2>
+                    <p class="price">$5.99/liter</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/banana.jpg" alt="Bananas" class="product-image">
+                    <h2>Bananas</h2>
+                    <p class="price">$1.20/lb</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/avocado.jpg" alt="Avocado" class="product-image">
+                    <h2>Avocado</h2>
+                    <p class="price">$1.50 each</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/wheat bread.jpg" alt="Whole Wheat Bread" class="product-image">
+                    <h2>Whole Wheat Bread</h2>
+                    <p class="price">$2.99/loaf</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/eggs.jpg" alt="Organic Eggs" class="product-image">
+                    <h2>Organic Eggs</h2>
+                    <p class="price">$4.99/dozen</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/strawberries.jpg" alt="Fresh Strawberries" class="product-image">
+                    <h2>Fresh Strawberries</h2>
+                    <p class="price">$3.99/pack</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+                <div class="product-card">
+                    <img src="images/spinach.jpg" alt="Fresh spinach" class="product-image">
+                    <h2>Fresh spinach</h2>
+                    <p class="price">$2.99/pack</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+                <div class="product-card">
+                    <img src="images/cauliflower.jpg" alt="Fresh cauliflower" class="product-image">
+                    <h2>cauliflower</h2>
+                    <p class="price">$5.99/pack</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+                <div class="product-card">
+                    <img src="images/potato.jpg" alt="Fresh potato" class="product-image">
+                    <h2>Fresh potato</h2>
+                    <p class="price">$5.99/pack</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+                <div class="product-card">
+                    <img src="images/capsicum.jpg" alt="capsicum" class="product-image">
+                    <h2>capsicum</h2>
+                    <p class="price">$7.99/pack</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+                <div class="product-card">
+                    <img src="images/cucumber.jpg" alt="cucumber" class="product-image">
+                    <h2>cucumber</h2>
+                    <p class="price">$7.99/pack</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+
+                <div class="product-card">
+                    <img src="images/yogurt.jpg" alt="Greek Yogurt" class="product-image">
+                    <h2>Greek Yogurt</h2>
+                    <p class="price">$2.99/cup</p>
+                    <button class="add-to-cart">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Fresh Picks Grocery. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="index.js"></script>
+</body>
+</html>

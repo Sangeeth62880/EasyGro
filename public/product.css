@@ -1,0 +1,198 @@
+/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header */
+header {
+    background-color: #28a745;
+    padding: 15px 0;
+    text-align: center;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+.logo {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fefffe;
+    letter-spacing: 1px;
+    display: inline-block;
+    padding: 10px 20px;
+
+    @keyframes fadeInBounce {
+        0% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        50% {
+            transform: translateY(5px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .logo {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2rem;
+        font-weight: 600;
+        color: #ff6600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        display: inline-block;
+        padding: 10px 20px;
+        animation: fadeInBounce 1s ease-in-out;
+    }
+    
+}
+.controls {
+    display: flex;
+    justify-content: center;  /* Centers horizontally */
+    gap: 20px; /* Adds space between dropdowns */
+    margin: 20px auto;
+    padding: 10px;
+}
+
+.controls select {
+    padding: 10px 15px;
+    font-size: 18px; /* Increased font size */
+    border: 2px solid #07733b; /* Match theme color */
+    border-radius: 8px;
+    background-color: #ffecec; /* Light pastel background */
+    color: #333;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.controls select:hover {
+    background-color: #d2ddd5; /* Lighter pastel on hover */
+    border-color: #dae4de;
+}
+
+
+
+nav ul li a:hover {
+    color: #ffeb3b;
+}
+.section-title {
+    font-family: 'Poppins', sans-serif; /* Change to a different font if needed */
+    font-weight: 700; /* Make it bold */
+    font-size: 2.5rem; /* Increase size */
+    text-align: center;
+    color: #07a226; /* Change color */
+    text-transform: uppercase; /* Make text uppercase */
+    letter-spacing: 0.5px; /* Add spacing */
+}
+
+/* Product Grid */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    justify-items: center;
+    padding: 20px;
+}
+
+.product-card {
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.product-card {
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-in-out forwards;
+}
+
+
+.product-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.product-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+h2 {
+    font-size: 18px;
+    color: #333;
+}
+
+.price {
+    font-size: 16px;
+    color: #28a745;
+    font-weight: bold;
+}
+
+/* Add to Cart Button */
+.add-to-cart {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: background 0.3s, transform 0.2s;
+}
+.add-to-cart {
+    background-color: #047232;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, background-color 0.3s;
+}
+
+.add-to-cart:hover {
+    transform: scale(1.1);
+    background-color: #049729;
+}
+
+
+.add-to-:hover {
+    background-color: #218838;
+    transform: scale(1.1);
+}
