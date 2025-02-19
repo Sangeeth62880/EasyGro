@@ -1,0 +1,53 @@
+.bg-grocery-pattern {
+    background-image: url("https://img.freepik.com/free-vector/hand-drawn-sketch-healthy-food-background_23-2148983254.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  /* Custom animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  /* Custom input styles */
+  input[type="email"],
+  input[type="password"],
+  input[type="text"] {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  input[type="text"]:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  /* Custom button styles */
+  button[type="submit"] {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .bg-grocery-pattern {
+      background-position: top center;
+    }
+  }
+  
+  
