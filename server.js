@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root', // Change if needed
-    password: 'root', // Add your MySQL password
+    password: '', // Add your MySQL password
     database: 'easygro'
 });
 

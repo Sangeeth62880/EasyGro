@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Details - EasyGro</title>
+    <link rel="stylesheet" href="followup.css">
+</head>
+<body>
+    <div class="container">
+        <div class="profile-card">
+            <h1>Profile Details</h1>
+            <div class="profile-image">
+                <img id="userImage" src="default-avatar.png" alt="Profile Picture">
+            </div>
+            <div class="profile-details">
+                <div class="detail-row">
+                    <label>Name:</label>
+                    <span id="userName">Loading...</span>
+                </div>
+                <div class="detail-row">
+                    <label>Email:</label>
+                    <span id="userEmail">Loading...</span>
+                </div>
+                <div class="detail-row">
+                    <label>Phone:</label>
+                    <span id="userPhone">Loading...</span>
+                </div>
+                <div class="detail-row">
+                    <label>Address:</label>
+                    <span id="userAddress">Loading...</span>
+                </div>
+                <div class="detail-row">
+                    <label>Bio:</label>
+                    <p id="userBio">Loading...</p>
+                </div>
+            </div>
+            <div class="button-container">
+                <button onclick="goToEdit()" class="edit-button">Edit Profile</button>
+            </div>
+        </div>
+    </div>
+    <script src="followup.js"></script>
+</body>
+</html>
