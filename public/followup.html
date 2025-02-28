@@ -1,45 +1,132 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Details - EasyGro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="followup.css">
 </head>
 <body>
-    <div class="container">
-        <div class="profile-card">
-            <h1>Profile Details</h1>
-            <div class="profile-image">
-                <img id="userImage" src="default-avatar.png" alt="Profile Picture">
-            </div>
-            <div class="profile-details">
-                <div class="detail-row">
-                    <label>Name:</label>
-                    <span id="userName">Loading...</span>
+    <header class="header">
+        <div class="header__container">
+            <a href="/" class="logo">
+                <img src="images/logo.png" alt="EasyGro Logo" class="logo__image">
+                <span class="logo__text">EasyGro</span>
+            </a>
+
+            <nav class="nav">
+                <ul class="nav__list">
+                    <li class="nav__item">
+                        <a href="/" class="nav__link">
+                            <i class="fas fa-home"></i>
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li class="nav__item">
+                        <a href="/profile" class="nav__link active">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="header__actions">
+                <div class="current-time" id="currentTime">
+                    <i class="far fa-clock"></i>
+                    <span>2025-02-20 18:49:55</span>
                 </div>
-                <div class="detail-row">
-                    <label>Email:</label>
-                    <span id="userEmail">Loading...</span>
-                </div>
-                <div class="detail-row">
-                    <label>Phone:</label>
-                    <span id="userPhone">Loading...</span>
-                </div>
-                <div class="detail-row">
-                    <label>Address:</label>
-                    <span id="userAddress">Loading...</span>
-                </div>
-                <div class="detail-row">
-                    <label>Bio:</label>
-                    <p id="userBio">Loading...</p>
-                </div>
-            </div>
-            <div class="button-container">
-                <button onclick="goToEdit()" class="edit-button">Edit Profile</button>
+
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-sun"></i>
+                </button>
             </div>
         </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <h1>Profile Details</h1>
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-sun"></i>
+                    </button>
+                </div>
+                
+                <div class="profile-content">
+                    <div class="profile-image">
+                        <div class="image-container">
+                            <img id="userImage" src="default-avatar.png" alt="Profile Picture">
+                            <div class="image-overlay">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-details">
+                        <div class="detail-row">
+                            <div class="detail-label">
+                                <i class="fas fa-user"></i>
+                                <span>Name</span>
+                            </div>
+                            <span id="userName" class="detail-value">Loading...</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <div class="detail-label">
+                                <i class="fas fa-envelope"></i>
+                                <span>Email</span>
+                            </div>
+                            <span id="userEmail" class="detail-value">Loading...</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <div class="detail-label">
+                                <i class="fas fa-phone"></i>
+                                <span>Phone</span>
+                            </div>
+                            <span id="userPhone" class="detail-value">Loading...</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <div class="detail-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>Address</span>
+                            </div>
+                            <span id="userAddress" class="detail-value">Loading...</span>
+                        </div>
+
+                        <div class="detail-row">
+                            <div class="detail-label">
+                                <i class="fas fa-info-circle"></i>
+                                <span>Bio</span>
+                            </div>
+                            <p id="userBio" class="detail-value bio">Loading...</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-actions">
+                        <button class="button button--primary" onclick="window.location.href='profile.html'">
+                            <i class="fas fa-edit"></i>
+                            Edit Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="notification" class="notification">
+        <i class="fas fa-info-circle"></i>
+        <span class="notification__message"></span>
+        <button class="notification__close">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
+
     <script src="followup.js"></script>
 </body>
 </html>
