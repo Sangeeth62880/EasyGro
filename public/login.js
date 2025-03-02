@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const response = await fetch("http://localhost:5001/signup", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, password }),
+                    body: JSON.stringify({ username, password, role: 'user' }), // Default role as user
                 });
 
                 const data = await response.json();
@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     // Redirect based on role after a short delay
                     setTimeout(() => {
                         if (data.role === 'admin') {
-                            window.location.href = "admin_dash.html";
+                            window.location.href = "/admin_dash.html";
                         } else {
                             window.location.href = "/index.html";
                         }

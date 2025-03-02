@@ -15,7 +15,6 @@ const SECRET_KEY = "your_secret_key";
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Configure multer for image uploads
 const storage = multer.diskStorage({
@@ -28,7 +27,7 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ 
+const upload = multer({
     storage: storage,
     limits: { fileSize: 5000000 }, // 5MB limit
     fileFilter: (req, file, cb) => {
@@ -45,7 +44,7 @@ const upload = multer({
 
 // Create images directory if it doesn't exist
 const imagesDir = path.join(__dirname, 'public', 'images');
-if (!fs.existsSync(imagesDir)){
+if (!fs.existsSync(imagesDir)) {
     fs.mkdirSync(imagesDir, { recursive: true });
 }
 
@@ -65,12 +64,20 @@ db.connect((err) => {
     console.log('Connected to MySQL database');
 });
 
+// Serve static files from public directory before routes
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Default route to serve the login page (MUST be after static middleware)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
 // Auth Routes
 app.post('/signup', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, role = 'user' } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    db.query('INSERT INTO users (username, password) VALUES (?, ?)', [username, hashedPassword], (err) => {
+    db.query('INSERT INTO users (username, password, role) VALUES (?, ?, ?)', [username, hashedPassword, role], (err) => {
         if (err) {
             return res.status(500).json({ message: 'User already exists or error occurred' });
         }
@@ -93,9 +100,39 @@ app.post('/login', (req, res) => {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
-        const token = jwt.sign({ user_id: user.id, username }, SECRET_KEY, { expiresIn: '1h' });
-        res.json({ message: 'Login successful!', token, user_id: user.id });
+        const token = jwt.sign({ user_id: user.id, username, role: user.role }, SECRET_KEY, { expiresIn: '1h' });
+        res.json({ message: 'Login successful!', token, user_id: user.id, role: user.role });
     });
+});
+
+// Middleware for checking JWT token
+function authenticateToken(req, res, next) {
+    const token = req.headers['authorization'];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+}
+
+// Protected admin route
+app.get('/admin', authenticateToken, (req, res) => {
+    if (req.user.role === 'admin') {
+        res.sendFile(path.join(__dirname, 'public', 'admin_dash.html'));
+    } else {
+        res.sendStatus(403);
+    }
+});
+
+// Protected user route
+app.get('/user', authenticateToken, (req, res) => {
+    if (req.user.role === 'user') {
+        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    } else {
+        res.sendStatus(403);
+    }
 });
 
 // Cart Routes
@@ -294,7 +331,7 @@ app.get('/inventory/:user_id', (req, res) => {
 app.get('/api/products', (req, res) => {
     console.log('Fetching products...');
     const query = 'SELECT id, name, price, image, category FROM products ORDER BY id DESC';
-    
+
     db.query(query, (err, results) => {
         if (err) {
             console.error('Error fetching products:', err);
@@ -307,7 +344,7 @@ app.get('/api/products', (req, res) => {
 
 app.post('/api/products', (req, res) => {
     const { name, category, price } = req.body;
-    
+
     if (!name || !category || !price) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -318,10 +355,10 @@ app.post('/api/products', (req, res) => {
             console.error('Error adding product:', err);
             return res.status(500).json({ error: 'Error adding product' });
         }
-        
-        res.status(201).json({ 
+
+        res.status(201).json({
             id: result.insertId,
-            message: 'Product added successfully' 
+            message: 'Product added successfully'
         });
     });
 });
@@ -329,7 +366,7 @@ app.post('/api/products', (req, res) => {
 app.put('/api/products/:id', (req, res) => {
     const { id } = req.params;
     const { name, category, price } = req.body;
-    
+
     if (!name || !category || !price) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -340,38 +377,38 @@ app.put('/api/products/:id', (req, res) => {
             console.error('Error updating product:', err);
             return res.status(500).json({ error: 'Error updating product' });
         }
-        
+
         res.json({ message: 'Product updated successfully' });
     });
 });
 
 app.delete('/api/products/:id', (req, res) => {
     const { id } = req.params;
-    
+
     db.query('SELECT * FROM cart WHERE product_id = ?', [id], (err, cartResults) => {
         if (err) {
             console.error('Error checking cart:', err);
             return res.status(500).json({ error: 'Error checking product usage' });
         }
-        
+
         if (cartResults.length > 0) {
-            return res.status(400).json({ 
-                error: 'Cannot delete product as it exists in customer carts' 
+            return res.status(400).json({
+                error: 'Cannot delete product as it exists in customer carts'
             });
         }
-        
+
         db.query('SELECT * FROM inventory WHERE product_id = ?', [id], (err, invResults) => {
             if (err) {
                 console.error('Error checking inventory:', err);
                 return res.status(500).json({ error: 'Error checking product usage' });
             }
-            
+
             if (invResults.length > 0) {
-                return res.status(400).json({ 
-                    error: 'Cannot delete product as it exists in customer inventories' 
+                return res.status(400).json({
+                    error: 'Cannot delete product as it exists in customer inventories'
                 });
             }
-            
+
             db.query('SELECT image FROM products WHERE id = ?', [id], (err, results) => {
                 if (err) {
                     console.error('Error getting product image:', err);
@@ -394,16 +431,17 @@ app.delete('/api/products/:id', (req, res) => {
                             console.error('Error deleting image file:', error);
                         }
                     }
-                    
+
                     res.json({ message: 'Product deleted successfully' });
                 });
             });
         });
     });
 });
+
 app.post('/api/products/:id/image', upload.single('image'), (req, res) => {
     const { id } = req.params;
-    
+
     if (!req.file) {
         return res.status(400).json({ error: 'No image file provided' });
     }
@@ -415,7 +453,7 @@ app.post('/api/products/:id/image', upload.single('image'), (req, res) => {
         }
 
         const imageUrl = `/images/${req.file.filename}`;
-        
+
         db.query('UPDATE products SET image = ? WHERE id = ?', [imageUrl, id], (err) => {
             if (err) {
                 console.error('Error updating product image:', err);
@@ -439,16 +477,14 @@ app.post('/api/products/:id/image', upload.single('image'), (req, res) => {
                     console.error('Error deleting old image file:', error);
                 }
             }
-            
-            res.json({ 
+
+            res.json({
                 message: 'Product image updated successfully',
                 imageUrl: imageUrl
             });
         });
     });
 });
-
-// Add these routes to your existing server.js file
 
 // Get all users
 app.get('/api/users', (req, res) => {
@@ -458,7 +494,7 @@ app.get('/api/users', (req, res) => {
         FROM users 
         ORDER BY created_at DESC
     `;
-    
+
     db.query(query, (err, results) => {
         if (err) {
             console.error('Error fetching users:', err);
@@ -477,7 +513,7 @@ app.get('/api/users/stats', (req, res) => {
             SUM(CASE WHEN role = 'user' THEN 1 ELSE 0 END) as regular
         FROM users
     `;
-    
+
     db.query(query, (err, results) => {
         if (err) {
             console.error('Error fetching user stats:', err);
@@ -501,13 +537,13 @@ app.get('/api/users/:id', (req, res) => {
 // Create new user
 app.post('/api/users', async (req, res) => {
     const { username, password, role, status } = req.body;
-    
+
     if (!username || !password) {
         return res.status(400).json({ error: 'Username and password are required' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     db.query(
         'INSERT INTO users (username, password, role, status) VALUES (?, ?, ?, ?)',
         [username, hashedPassword, role || 'user', status || 'active'],
@@ -525,7 +561,7 @@ app.post('/api/users', async (req, res) => {
 app.put('/api/users/:id', async (req, res) => {
     const { id } = req.params;
     const { username, password, role, status } = req.body;
-    
+
     let query = 'UPDATE users SET username = ?, role = ?, status = ?';
     let params = [username, role, status];
 
@@ -550,17 +586,17 @@ app.put('/api/users/:id', async (req, res) => {
 // Delete user
 app.delete('/api/users/:id', (req, res) => {
     const { id } = req.params;
-    
+
     // Prevent deletion of admin users
     db.query('SELECT role FROM users WHERE id = ?', [id], (err, results) => {
         if (err || results.length === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
-        
+
         if (results[0].role === 'admin') {
             return res.status(403).json({ error: 'Cannot delete admin users' });
         }
-        
+
         db.query('DELETE FROM users WHERE id = ?', [id], (err) => {
             if (err) {
                 console.error('Error deleting user:', err);
@@ -574,7 +610,7 @@ app.delete('/api/users/:id', (req, res) => {
 // Toggle user status
 app.post('/api/users/:id/toggle-status', (req, res) => {
     const { id } = req.params;
-    
+
     db.query(
         'UPDATE users SET status = CASE WHEN status = "active" THEN "inactive" ELSE "active" END WHERE id = ?',
         [id],
@@ -588,29 +624,17 @@ app.post('/api/users/:id/toggle-status', (req, res) => {
     );
 });
 
-// Add these routes to your existing server.js file before app.listen()
-
-// Serve static files from public directory
-app.use(express.static('public'));
-
-// Route to serve the admin user page
+// Add these routes to your existing server.js file
 app.get('/adm_user.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'adm_user.html'));
 });
 
-// Route to serve the admin dashboard
 app.get('/adm_dashboard.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'adm_dashboard.html'));
 });
 
-// Route to serve the admin inventory page
 app.get('/adm_inventory.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'adm_inventory.html'));
-});
-
-// Redirect root to index
-app.get('/', (req, res) => {
-    res.redirect('/index.html');
 });
 
 // API endpoint to get current user and time info
@@ -630,7 +654,7 @@ app.use((err, req, res, next) => {
         }
         return res.status(400).json({ error: err.message });
     }
-    
+
     console.error('Unhandled error:', err);
     res.status(500).json({ error: 'Internal server error' });
 });
