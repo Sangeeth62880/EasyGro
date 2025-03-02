@@ -1,11 +1,12 @@
 const express = require('express');
 const mysql = require('mysql2');
-const bcrypt = require('bcryptjs'); // Change this line
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-
+const multer = require('multer');
+const fs = require('fs');
 
 const app = express();
 const PORT = 5001;
@@ -14,12 +15,45 @@ const SECRET_KEY = "your_secret_key";
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Configure multer for image uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, 'public', 'images'));
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 5000000 }, // 5MB limit
+    fileFilter: (req, file, cb) => {
+        const fileTypes = /jpeg|jpg|png|webp/;
+        const mimeType = fileTypes.test(file.mimetype);
+        const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+
+        if (mimeType && extname) {
+            return cb(null, true);
+        }
+        cb(new Error('Only .png, .jpg, .jpeg, and .webp formats allowed'));
+    }
+});
+
+// Create images directory if it doesn't exist
+const imagesDir = path.join(__dirname, 'public', 'images');
+if (!fs.existsSync(imagesDir)){
+    fs.mkdirSync(imagesDir, { recursive: true });
+}
 
 // MySQL Connection
 const db = mysql.createConnection({
     host: 'localhost',
-    user: 'root', // Change if needed
-    password: '', // Add your MySQL password
+    user: 'root',
+    password: '',
     database: 'easygro'
 });
 
@@ -31,7 +65,7 @@ db.connect((err) => {
     console.log('Connected to MySQL database');
 });
 
-// Signup Route
+// Auth Routes
 app.post('/signup', async (req, res) => {
     const { username, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -44,7 +78,6 @@ app.post('/signup', async (req, res) => {
     });
 });
 
-// Login Route
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
@@ -54,7 +87,6 @@ app.post('/login', (req, res) => {
         }
 
         const user = results[0];
-        console.log(user);
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
@@ -66,17 +98,14 @@ app.post('/login', (req, res) => {
     });
 });
 
-// Improved Cart Route with Error Handling
+// Cart Routes
 app.post('/cart', (req, res) => {
-    const { user_id, product_id, quantity = 1 } = req.body; // Default quantity to 1 if not provided
+    const { user_id, product_id, quantity = 1 } = req.body;
 
     if (!user_id || !product_id || isNaN(user_id)) {
         return res.status(400).json({ error: 'Invalid user_id or product_id' });
     }
 
-    console.log('Adding to cart:', { user_id, product_id }); // Debug log
-
-    // First check if product exists
     const checkProduct = 'SELECT id FROM products WHERE id = ?';
     db.query(checkProduct, [product_id], (err, productResults) => {
         if (err) {
@@ -88,7 +117,6 @@ app.post('/cart', (req, res) => {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        // Check if item already in cart
         const checkCart = 'SELECT * FROM cart WHERE user_id = ? AND product_id = ?';
         db.query(checkCart, [user_id, product_id], (err, cartResults) => {
             if (err) {
@@ -97,7 +125,6 @@ app.post('/cart', (req, res) => {
             }
 
             if (cartResults.length > 0) {
-                // Update existing cart item
                 const updateQuery = 'UPDATE cart SET quantity = quantity + ? WHERE user_id = ? AND product_id = ?';
                 db.query(updateQuery, [quantity, user_id, product_id], (err) => {
                     if (err) {
@@ -107,7 +134,6 @@ app.post('/cart', (req, res) => {
                     res.json({ message: 'Cart updated successfully' });
                 });
             } else {
-                // Add new cart item
                 const insertQuery = 'INSERT INTO cart (user_id, product_id, quantity) VALUES (?, ?, ?)';
                 db.query(insertQuery, [user_id, product_id, quantity], (err) => {
                     if (err) {
@@ -121,11 +147,10 @@ app.post('/cart', (req, res) => {
     });
 });
 
-// Get Cart Items (Fix)
 app.get('/cart/:user_id', (req, res) => {
     const { user_id } = req.params;
     const query = `
-        SELECT c.id, c.quantity, p.name, p.price, p.image , c.product_id
+        SELECT c.id, c.quantity, p.name, p.price, p.image, c.product_id
         FROM cart c 
         JOIN products p ON c.product_id = p.id 
         WHERE c.user_id = ?
@@ -136,7 +161,6 @@ app.get('/cart/:user_id', (req, res) => {
             console.error('Error fetching cart:', err);
             return res.status(500).json({ error: 'Error fetching cart' });
         }
-        // Convert price to number before sending
         const cartItems = results.map(item => ({
             ...item,
             price: parseFloat(item.price)
@@ -145,7 +169,6 @@ app.get('/cart/:user_id', (req, res) => {
     });
 });
 
-// Remove Item from Cart (Fix)
 app.delete('/cart/:id', (req, res) => {
     const { id } = req.params;
     db.query('DELETE FROM cart WHERE id = ?', [id], (err) => {
@@ -154,7 +177,6 @@ app.delete('/cart/:id', (req, res) => {
     });
 });
 
-// Update Cart Quantity (Fix)
 app.put('/cart/:id', (req, res) => {
     const { id } = req.params;
     const { quantity } = req.body;
@@ -165,7 +187,7 @@ app.put('/cart/:id', (req, res) => {
     });
 });
 
-// Add this after existing routes
+// Product Routes
 app.get('/products', (req, res) => {
     db.query('SELECT * FROM products', (err, results) => {
         if (err) return res.status(500).json({ error: 'Error fetching products' });
@@ -173,7 +195,6 @@ app.get('/products', (req, res) => {
     });
 });
 
-// Add this route after existing /products route
 app.get('/products/filter', (req, res) => {
     const { category, sortPrice } = req.query;
     let query = 'SELECT * FROM products';
@@ -189,8 +210,6 @@ app.get('/products/filter', (req, res) => {
         query += sortPrice === 'asc' ? ' ASC' : ' DESC';
     }
 
-    console.log('Query:', query); // Debug log
-
     db.query(query, params, (err, results) => {
         if (err) {
             console.error('Database error:', err);
@@ -200,16 +219,15 @@ app.get('/products/filter', (req, res) => {
     });
 });
 
+// Checkout Route
 app.post('/checkout/:user_id', (req, res) => {
     const { user_id } = req.params;
 
-    // Begin transaction
     db.beginTransaction(err => {
         if (err) {
             return res.status(500).json({ error: 'Transaction error' });
         }
 
-        // Get cart items
         const getCartItems = 'SELECT product_id, quantity FROM cart WHERE user_id = ?';
         db.query(getCartItems, [user_id], (err, cartItems) => {
             if (err) {
@@ -218,7 +236,6 @@ app.post('/checkout/:user_id', (req, res) => {
                 });
             }
 
-            // Insert into inventory
             const insertInventory = 'INSERT INTO inventory (user_id, product_id, quantity) VALUES ?';
             const values = cartItems.map(item => [user_id, item.product_id, item.quantity]);
 
@@ -229,7 +246,6 @@ app.post('/checkout/:user_id', (req, res) => {
                     });
                 }
 
-                // Clear cart
                 const clearCart = 'DELETE FROM cart WHERE user_id = ?';
                 db.query(clearCart, [user_id], (err) => {
                     if (err) {
@@ -238,7 +254,6 @@ app.post('/checkout/:user_id', (req, res) => {
                         });
                     }
 
-                    // Commit transaction
                     db.commit(err => {
                         if (err) {
                             return db.rollback(() => {
@@ -253,6 +268,7 @@ app.post('/checkout/:user_id', (req, res) => {
     });
 });
 
+// Inventory Route
 app.get('/inventory/:user_id', (req, res) => {
     const { user_id } = req.params;
     const query = `
@@ -274,7 +290,359 @@ app.get('/inventory/:user_id', (req, res) => {
     });
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+// Admin API Routes
+app.get('/api/products', (req, res) => {
+    console.log('Fetching products...');
+    const query = 'SELECT id, name, price, image, category FROM products ORDER BY id DESC';
+    
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching products:', err);
+            return res.status(500).json({ error: 'Error fetching products' });
+        }
+        console.log(`Found ${results.length} products`);
+        res.json(results);
+    });
+});
+
+app.post('/api/products', (req, res) => {
+    const { name, category, price } = req.body;
+    
+    if (!name || !category || !price) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const query = 'INSERT INTO products (name, category, price) VALUES (?, ?, ?)';
+    db.query(query, [name, category, parseFloat(price)], (err, result) => {
+        if (err) {
+            console.error('Error adding product:', err);
+            return res.status(500).json({ error: 'Error adding product' });
+        }
+        
+        res.status(201).json({ 
+            id: result.insertId,
+            message: 'Product added successfully' 
+        });
+    });
+});
+
+app.put('/api/products/:id', (req, res) => {
+    const { id } = req.params;
+    const { name, category, price } = req.body;
+    
+    if (!name || !category || !price) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const query = 'UPDATE products SET name = ?, category = ?, price = ? WHERE id = ?';
+    db.query(query, [name, category, parseFloat(price), id], (err) => {
+        if (err) {
+            console.error('Error updating product:', err);
+            return res.status(500).json({ error: 'Error updating product' });
+        }
+        
+        res.json({ message: 'Product updated successfully' });
+    });
+});
+
+app.delete('/api/products/:id', (req, res) => {
+    const { id } = req.params;
+    
+    db.query('SELECT * FROM cart WHERE product_id = ?', [id], (err, cartResults) => {
+        if (err) {
+            console.error('Error checking cart:', err);
+            return res.status(500).json({ error: 'Error checking product usage' });
+        }
+        
+        if (cartResults.length > 0) {
+            return res.status(400).json({ 
+                error: 'Cannot delete product as it exists in customer carts' 
+            });
+        }
+        
+        db.query('SELECT * FROM inventory WHERE product_id = ?', [id], (err, invResults) => {
+            if (err) {
+                console.error('Error checking inventory:', err);
+                return res.status(500).json({ error: 'Error checking product usage' });
+            }
+            
+            if (invResults.length > 0) {
+                return res.status(400).json({ 
+                    error: 'Cannot delete product as it exists in customer inventories' 
+                });
+            }
+            
+            db.query('SELECT image FROM products WHERE id = ?', [id], (err, results) => {
+                if (err) {
+                    console.error('Error getting product image:', err);
+                    return res.status(500).json({ error: 'Error deleting product' });
+                }
+
+                db.query('DELETE FROM products WHERE id = ?', [id], (err) => {
+                    if (err) {
+                        console.error('Error deleting product:', err);
+                        return res.status(500).json({ error: 'Error deleting product' });
+                    }
+
+                    if (results[0] && results[0].image) {
+                        const imagePath = path.join(__dirname, 'public', results[0].image);
+                        try {
+                            if (fs.existsSync(imagePath)) {
+                                fs.unlinkSync(imagePath);
+                            }
+                        } catch (error) {
+                            console.error('Error deleting image file:', error);
+                        }
+                    }
+                    
+                    res.json({ message: 'Product deleted successfully' });
+                });
+            });
+        });
+    });
+});
+app.post('/api/products/:id/image', upload.single('image'), (req, res) => {
+    const { id } = req.params;
+    
+    if (!req.file) {
+        return res.status(400).json({ error: 'No image file provided' });
+    }
+
+    db.query('SELECT image FROM products WHERE id = ?', [id], (err, results) => {
+        if (err) {
+            console.error('Error getting current image:', err);
+            return res.status(500).json({ error: 'Error updating product image' });
+        }
+
+        const imageUrl = `/images/${req.file.filename}`;
+        
+        db.query('UPDATE products SET image = ? WHERE id = ?', [imageUrl, id], (err) => {
+            if (err) {
+                console.error('Error updating product image:', err);
+                // Delete uploaded file if database update fails
+                try {
+                    fs.unlinkSync(path.join(__dirname, 'public', 'images', req.file.filename));
+                } catch (unlinkError) {
+                    console.error('Error deleting uploaded file:', unlinkError);
+                }
+                return res.status(500).json({ error: 'Error updating product image' });
+            }
+
+            // Delete old image if it exists
+            if (results[0] && results[0].image) {
+                const oldImagePath = path.join(__dirname, 'public', results[0].image);
+                try {
+                    if (fs.existsSync(oldImagePath)) {
+                        fs.unlinkSync(oldImagePath);
+                    }
+                } catch (error) {
+                    console.error('Error deleting old image file:', error);
+                }
+            }
+            
+            res.json({ 
+                message: 'Product image updated successfully',
+                imageUrl: imageUrl
+            });
+        });
+    });
+});
+
+// Add these routes to your existing server.js file
+
+// Get all users
+app.get('/api/users', (req, res) => {
+    const query = `
+        SELECT id, username, role, status, 
+        last_login, created_at, updated_at 
+        FROM users 
+        ORDER BY created_at DESC
+    `;
+    
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching users:', err);
+            return res.status(500).json({ error: 'Error fetching users' });
+        }
+        res.json(results);
+    });
+});
+
+// Get user stats
+app.get('/api/users/stats', (req, res) => {
+    const query = `
+        SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as admins,
+            SUM(CASE WHEN role = 'user' THEN 1 ELSE 0 END) as regular
+        FROM users
+    `;
+    
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching user stats:', err);
+            return res.status(500).json({ error: 'Error fetching user stats' });
+        }
+        res.json(results[0]);
+    });
+});
+
+// Get single user
+app.get('/api/users/:id', (req, res) => {
+    const { id } = req.params;
+    db.query('SELECT id, username, role, status FROM users WHERE id = ?', [id], (err, results) => {
+        if (err || results.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json(results[0]);
+    });
+});
+
+// Create new user
+app.post('/api/users', async (req, res) => {
+    const { username, password, role, status } = req.body;
+    
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    db.query(
+        'INSERT INTO users (username, password, role, status) VALUES (?, ?, ?, ?)',
+        [username, hashedPassword, role || 'user', status || 'active'],
+        (err, result) => {
+            if (err) {
+                console.error('Error creating user:', err);
+                return res.status(500).json({ error: 'Error creating user' });
+            }
+            res.status(201).json({ id: result.insertId, message: 'User created successfully' });
+        }
+    );
+});
+
+// Update user
+app.put('/api/users/:id', async (req, res) => {
+    const { id } = req.params;
+    const { username, password, role, status } = req.body;
+    
+    let query = 'UPDATE users SET username = ?, role = ?, status = ?';
+    let params = [username, role, status];
+
+    if (password) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        query += ', password = ?';
+        params.push(hashedPassword);
+    }
+
+    query += ' WHERE id = ?';
+    params.push(id);
+
+    db.query(query, params, (err) => {
+        if (err) {
+            console.error('Error updating user:', err);
+            return res.status(500).json({ error: 'Error updating user' });
+        }
+        res.json({ message: 'User updated successfully' });
+    });
+});
+
+// Delete user
+app.delete('/api/users/:id', (req, res) => {
+    const { id } = req.params;
+    
+    // Prevent deletion of admin users
+    db.query('SELECT role FROM users WHERE id = ?', [id], (err, results) => {
+        if (err || results.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        if (results[0].role === 'admin') {
+            return res.status(403).json({ error: 'Cannot delete admin users' });
+        }
+        
+        db.query('DELETE FROM users WHERE id = ?', [id], (err) => {
+            if (err) {
+                console.error('Error deleting user:', err);
+                return res.status(500).json({ error: 'Error deleting user' });
+            }
+            res.json({ message: 'User deleted successfully' });
+        });
+    });
+});
+
+// Toggle user status
+app.post('/api/users/:id/toggle-status', (req, res) => {
+    const { id } = req.params;
+    
+    db.query(
+        'UPDATE users SET status = CASE WHEN status = "active" THEN "inactive" ELSE "active" END WHERE id = ?',
+        [id],
+        (err) => {
+            if (err) {
+                console.error('Error toggling user status:', err);
+                return res.status(500).json({ error: 'Error toggling user status' });
+            }
+            res.json({ message: 'User status updated successfully' });
+        }
+    );
+});
+
+// Add these routes to your existing server.js file before app.listen()
+
+// Serve static files from public directory
+app.use(express.static('public'));
+
+// Route to serve the admin user page
+app.get('/adm_user.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'adm_user.html'));
+});
+
+// Route to serve the admin dashboard
+app.get('/adm_dashboard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'adm_dashboard.html'));
+});
+
+// Route to serve the admin inventory page
+app.get('/adm_inventory.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'adm_inventory.html'));
+});
+
+// Redirect root to index
+app.get('/', (req, res) => {
+    res.redirect('/index.html');
+});
+
+// API endpoint to get current user and time info
+app.get('/api/admin/info', (req, res) => {
+    const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    res.json({
+        username: 'Sangeeth62880',
+        currentDateTime: currentTime
+    });
+});
+
+// Error handling middleware for multer and general errors
+app.use((err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({ error: 'File size is too large. Maximum size is 5MB.' });
+        }
+        return res.status(400).json({ error: err.message });
+    }
+    
+    console.error('Unhandled error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+});
+
+// Start server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+    console.log('Connected routes:');
+    console.log('- Authentication: /signup, /login');
+    console.log('- Products: /products, /products/filter');
+    console.log('- Cart: /cart, /cart/:user_id');
+    console.log('- Inventory: /inventory/:user_id');
+    console.log('- Admin API: /api/products');
+    console.log('- Images: /images/*');
 });

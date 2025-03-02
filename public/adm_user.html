@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyGro - User Management</title>
+    <link rel="stylesheet" href="adm_user.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="images/logo.png" alt="EasyGro Logo">
+                <h2>EasyGro</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="admin_dash.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="adm_inv.html"><i class="fas fa-box"></i> Inventory</a></li>
+                <li class="active"><a href="adm_user.html"><i class="fas fa-users"></i> Users</a></li>
+                <li><a href="index.html" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header>
+                <h1>User Management</h1>
+                <div class="admin-info">
+                    <div class="current-user">
+                        <i class="fas fa-user-shield"></i>
+                        <span id="currentUserName">Sangeeth62880</span>
+                    </div>
+                    <div class="current-time">
+                        <i class="fas fa-clock"></i>
+                        <span id="currentDateTime">2025-03-02 13:30:46</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search users...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <button class="add-user-btn">
+                        <i class="fas fa-user-plus"></i> Add New User
+                    </button>
+                </div>
+            </header>
+
+            <div class="user-stats">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <div class="stat-info">
+                        <h3>Total Users</h3>
+                        <p id="totalUsers">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-user-shield"></i>
+                    <div class="stat-info">
+                        <h3>Admins</h3>
+                        <p id="totalAdmins">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-user"></i>
+                    <div class="stat-info">
+                        <h3>Regular Users</h3>
+                        <p id="regularUsers">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="users-container">
+                <div class="filters">
+                    <select id="roleFilter">
+                        <option value="all">All Roles</option>
+                        <option value="admin">Admins</option>
+                        <option value="user">Regular Users</option>
+                    </select>
+                    <select id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <div class="users-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Users will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for adding/editing users -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modalTitle">Add New User</h2>
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password">
+                    <small>Leave blank to keep current password when editing</small>
+                </div>
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" required>
+                        <option value="user">Regular User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" required>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">Save User</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <h2>Confirm Action</h2>
+            <p id="confirmMessage"></p>
+            <div class="modal-actions">
+                <button class="cancel-btn">Cancel</button>
+                <button class="confirm-btn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="adm_user.js"></script>
+</body>
+</html>

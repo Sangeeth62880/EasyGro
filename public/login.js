@@ -15,12 +15,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 🔵 Handle Signup
+    // Handle Signup
     if (signupForm) {
         signupForm.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            // Ensure correct element selection
             const username = document.querySelector("#signup-username").value.trim();
             const password = document.querySelector("#signup-password").value.trim();
 
@@ -51,12 +50,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 🟢 Handle Login
+    // Handle Login
     if (loginForm) {
         loginForm.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            // Ensure correct element selection
             const username = document.querySelector("#login-username").value.trim();
             const password = document.querySelector("#login-password").value.trim();
 
@@ -75,7 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Store user data correctly from the response
                     localStorage.setItem("token", data.token);
                     localStorage.setItem("user_id", data.user_id.toString());
                     localStorage.setItem("username", data.username);
@@ -86,9 +83,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     popup.textContent = 'Login successful!';
                     document.body.appendChild(popup);
                     
-                    // Redirect after a short delay
+                    // Redirect based on role after a short delay
                     setTimeout(() => {
-                        window.location.href = "/product.html";
+                        if (data.role === 'admin') {
+                            window.location.href = "admin_dash.html";
+                        } else {
+                            window.location.href = "/index.html";
+                        }
                     }, 1000);
                 } else {
                     alert(data.error || 'Login failed');

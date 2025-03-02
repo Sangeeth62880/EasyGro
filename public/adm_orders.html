@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyGro - Order Management</title>
+    <link rel="stylesheet" href="adm_orders.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="images/logo.png" alt="EasyGro Logo">
+                <h2>EasyGro</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="admin_dash.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="adm_inventory.html"><i class="fas fa-box"></i> Inventory</a></li>
+                <li><a href="adm_user.html"><i class="fas fa-users"></i> Users</a></li>
+                <li class="active"><a href="adm_orders.html"><i class="fas fa-shopping-cart"></i> Orders</a></li>
+                <li><a href="index.html" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header>
+                <h1>Order Management</h1>
+                <div class="admin-info">
+                    <div class="current-user">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Current User's Login: </span>
+                        <span id="currentUserName">Sangeeth62880</span>
+                    </div>
+                    <div class="current-time">
+                        <i class="fas fa-clock"></i>
+                        <span>Current Date and Time (UTC): </span>
+                        <span id="currentDateTime">2025-03-02 13:49:50</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search orders...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <button class="add-order-btn">
+                        <i class="fas fa-plus"></i> Create New Order
+                    </button>
+                </div>
+            </header>
+
+            <div class="order-stats">
+                <div class="stat-card">
+                    <i class="fas fa-shopping-cart"></i>
+                    <div class="stat-info">
+                        <h3>Total Orders</h3>
+                        <p id="totalOrders">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <div class="stat-info">
+                        <h3>Processing</h3>
+                        <p id="processingOrders">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="stat-info">
+                        <h3>Completed</h3>
+                        <p id="completedOrders">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-truck"></i>
+                    <div class="stat-info">
+                        <h3>Delivered</h3>
+                        <p id="deliveredOrders">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="orders-container">
+                <div class="filters">
+                    <select id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="processing">Processing</option>
+                        <option value="completed">Completed</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <select id="dateFilter">
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
+                </div>
+
+                <div class="orders-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Products</th>
+                                <th>Total Amount</th>
+                                <th>Order Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <!-- Orders will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for adding/editing orders -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modalTitle">Create New Order</h2>
+            <form id="orderForm">
+                <div class="form-group">
+                    <label for="customerName">Customer Name</label>
+                    <input type="text" id="customerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="products">Products</label>
+                    <div id="productsList">
+                        <div class="product-item">
+                            <select class="product-select" required>
+                                <option value="">Select Product</option>
+                                <!-- Products will be populated here -->
+                            </select>
+                            <input type="number" class="product-quantity" min="1" value="1" required>
+                            <button type="button" class="remove-product"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                    <button type="button" id="addProductBtn">Add Product</button>
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" required>
+                        <option value="processing">Processing</option>
+                        <option value="completed">Completed</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Total Amount</label>
+                    <p id="totalAmount">₹0.00</p>
+                </div>
+                <button type="submit" class="submit-btn">Save Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <h2>Confirm Action</h2>
+            <p id="confirmMessage"></p>
+            <div class="modal-actions">
+                <button class="cancel-btn">Cancel</button>
+                <button class="confirm-btn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="adm_orders.js"></script>
+</body>
+</html>
