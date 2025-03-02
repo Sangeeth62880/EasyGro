@@ -1,137 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- Load Font Awesome first -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        <!-- Load Google Fonts second -->
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-        <!-- Load your custom CSS last -->
-        <link rel="stylesheet" href="profile.css">
-        <title>Profile</title>
-    </head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EasyGro - User Profile Management">
+    <meta name="author" content="Sangeeth62880">
+    <title>EasyGro - Profile</title>
+    <link rel="stylesheet" href="./profile.css">
+    <!-- Last updated: 2025-03-02 -->
+</head>
 <body>
     <div class="page-wrapper">
-       <header class="header">
-    <div class="header__container">
-        <a href="/" class="logo">
-           
-            <span class="logo__text">EasyGro</span>
-        </a>
+        <header class="header">
+            <div class="container header__container">
+                <a href="/" class="logo">
+                    <img src="https://via.placeholder.com/40" alt="EasyGro Logo" class="logo__image">
+                    <span class="logo__text">EasyGro</span>
+                </a>
+                
+                <nav class="nav">
+                    <button class="nav__toggle" aria-label="Toggle navigation">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                    <ul class="nav__list">
+                        <li><a href="/" class="nav__link">Home</a></li>
+                        <li><a href="/products" class="nav__link">Products</a></li>
+                        <li><a href="/cart" class="nav__link">Cart</a></li>
+                        <li><a href="/contact" class="nav__link">Contact Us</a></li>
+                    </ul>
+                </nav>
 
-        <nav class="nav">
-            <ul class="nav__list">
-                <li class="nav__item">
-                    <a href="/" class="nav__link">
-                        <i class="fas fa-home"></i>
-                        <span>Home</span>
-                    </a>
-                </li>
-                <li class="nav__item">
-                    <a href="/products" class="nav__link">
-                        <i class="fas fa-shopping-basket"></i>
-                        <span>Products</span>
-                    </a>
-                </li>
-                <li class="nav__item">
-                    <a href="/cart" class="nav__link">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Cart</span>
-                    </a>
-                </li>
-                <li class="nav__item">
-                    <a href="/contact" class="nav__link">
-                        <i class="fas fa-envelope"></i>
-                        <span>Contact</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        <div class="header__actions">
-            <div class="current-time" id="currentTime">
-                <i class="far fa-clock"></i>
-                <span>2025-02-20 18:25:15</span>
-            </div>
-
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-                <i class="fas fa-sun"></i>
-            </button>
-
-            <div class="user-menu">
-                <button class="user-menu__trigger" aria-label="User menu">
-                    <div class="user-menu__avatar-wrapper">
-                        <img src="path_to_avatar.jpg" alt="Sangeeth62880" class="user-menu__avatar">
+                <div class="header__actions">
+                    <div class="current-time" id="currentTime"></div>
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                        <svg class="theme-toggle__icon" viewBox="0 0 24 24" width="24" height="24">
+                            <path d="M12 3a6 6 0 0 0-6 6c0 3.314 2.686 6 6 6s6-2.686 6-6-2.686-6-6-6z"/>
+                        </svg>
+                    </button>
+                    <div class="user-menu">
+                        <button class="user-menu__trigger" aria-label="User menu">
+                            <img src="https://via.placeholder.com/32" alt="User avatar" class="user-menu__avatar">
+                        </button>
+                        <div class="user-menu__dropdown">
+                            <a href="/profile" class="user-menu__link">Profile</a>
+                            <a href="/settings" class="user-menu__link">Settings</a>
+                            <a href="/logout" class="user-menu__link">Logout</a>
+                        </div>
                     </div>
-                    <span class="user-menu__name">Sangeeth62880</span>
-                </button>
-
-                <div class="user-menu__dropdown">
-                    <div class="user-menu__header">
-                        <span class="user-menu__name">Sangeeth62880</span>
-                        <span class="user-menu__email">Sangeeth62880</span>
-                    </div>
-                    <a href="/profile" class="user-menu__link">
-                        <i class="fas fa-user"></i>
-                        <span>Profile</span>
-                    </a>
-                    <a href="/settings" class="user-menu__link">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                    <a href="/logout" class="user-menu__link user-menu__link--danger">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
                 </div>
             </div>
-        </div>
-    </div>
-</header>
+        </header>
 
         <main class="main">
             <div class="container">
                 <div class="profile">
                     <div class="profile__header">
-                        <h1 class="profile__title"><i class="fas fa-user-circle"></i> Profile Settings</h1>
+                        <h1 class="profile__title">Profile Settings</h1>
                         <div class="profile__actions">
-                            <button class="button button--secondary">
-                                <i class="fas fa-times"></i> Cancel
-                            </button>
-                            <button class="button button--primary" onclick="window.location.href='followup.html'">
-                                <i class="fas fa-save"></i> Save Changes
-                            </button>
+                            <button class="button button--secondary">Cancel</button>
+                            <button class="button button--primary" type="submit" form="profileForm">Save Changes</button>
                         </div>
                     </div>
 
-                    <div class="alert alert--info">
-                        <i class="fas fa-info-circle alert__icon"></i>
+                    <div class="alert" role="alert">
+                        <svg class="alert__icon" viewBox="0 0 24 24" width="24" height="24">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12" y2="16"/>
+                        </svg>
                         <div class="alert__content">
-                            <h4 class="alert__title">Welcome back!</h4>
+                            <h4 class="alert__title">Welcome back, @Sangeeth62880!</h4>
                             <p class="alert__description">Keep your profile information up to date to get the most out of your EasyGro experience.</p>
                         </div>
                     </div>
 
                     <div class="profile__content">
                         <aside class="profile__sidebar">
-                            <div class="card card--hover">
+                            <div class="card">
                                 <div class="card__header">
-                                    <h2 class="card__title"><i class="fas fa-camera"></i> Profile Picture</h2>
-                                    <p class="card__description">Update your profile picture here.</p>
+                                    <h2 class="card__title">Profile Picture</h2>
+                                    <p class="card__description">Upload a profile picture (max 5MB)</p>
                                 </div>
                                 <div class="card__content">
                                     <div class="avatar-upload">
                                         <div class="avatar-upload__preview">
-                                            <img src="/placeholder.svg" alt="Profile picture" id="avatarPreview">
-                                            <div class="avatar-upload__overlay">
-                                                <i class="fas fa-camera"></i>
-                                            </div>
+                                            <img src="https://via.placeholder.com/160" alt="Profile picture" id="avatarPreview">
                                         </div>
-                                        <label class="button button--outline avatar-upload__button">
+                                        <label class="button button--secondary">
                                             <input type="file" accept="image/*" id="avatarInput" class="avatar-upload__input">
-                                            <i class="fas fa-upload"></i> Change Picture
+                                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                                <polyline points="17 8 12 3 7 8"/>
+                                                <line x1="12" y1="3" x2="12" y2="15"/>
+                                            </svg>
+                                            Upload Photo
                                         </label>
                                     </div>
                                 </div>
@@ -141,63 +105,141 @@
                         <div class="profile__main">
                             <div class="tabs" id="profileTabs">
                                 <div class="tabs__list" role="tablist">
-                                    <button class="tabs__trigger active" role="tab" aria-selected="true" data-tab="personal">
-                                        <i class="fas fa-user"></i> Personal Info
-                                    </button>
-                                    <button class="tabs__trigger" role="tab" aria-selected="false" data-tab="orders">
-                                        <i class="fas fa-shopping-bag"></i> Orders
-                                    </button>
-                                    <button class="tabs__trigger" role="tab" aria-selected="false" data-tab="wishlist">
-                                        <i class="fas fa-heart"></i> Wishlist
-                                    </button>
-                                    <button class="tabs__trigger" role="tab" aria-selected="false" data-tab="settings">
-                                        <i class="fas fa-cog"></i> Settings
-                                    </button>
+                                    <button class="tabs__trigger active" role="tab" data-tab="personal">Personal Info</button>
+                                    <button class="tabs__trigger" role="tab" data-tab="orders">Orders</button>
+                                    <button class="tabs__trigger" role="tab" data-tab="wishlist">Wishlist</button>
+                                    <button class="tabs__trigger" role="tab" data-tab="settings">Settings</button>
                                 </div>
 
                                 <div class="tabs__content">
-                                    <div class="tabs__panel active" role="tabpanel" data-tab-content="personal">
-                                        <div class="card card--hover">
+                                    <div class="tabs__panel active" data-tab-content="personal">
+                                        <form class="form" id="profileForm" novalidate>
+                                            <div class="card">
+                                                <div class="card__header">
+                                                    <h2 class="card__title">Personal Information</h2>
+                                                    <p class="card__description">Your personal details are used to enhance your shopping experience.</p>
+                                                </div>
+                                                <div class="card__content">
+                                                    <div class="form__group">
+                                                        <label class="form__label" for="name">Full Name</label>
+                                                        <input type="text" id="name" class="form__input" required>
+                                                        <span class="form__error"></span>
+                                                    </div>
+                                                    <div class="form__group">
+                                                        <label class="form__label" for="email">Email</label>
+                                                        <input type="email" id="email" class="form__input" required>
+                                                        <span class="form__error"></span>
+                                                    </div>
+                                                    <div class="form__group">
+                                                        <label class="form__label" for="phone">Phone Number</label>
+                                                        <input type="tel" id="phone" class="form__input" placeholder="(123) 456-7890" required>
+                                                        <span class="form__error"></span>
+                                                    </div>
+                                                    <div class="form__group">
+                                                        <label class="form__label" for="address">Delivery Address</label>
+                                                        <textarea id="address" class="form__input form__input--textarea" required></textarea>
+                                                        <span class="form__error"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                        <div class="card">
                                             <div class="card__header">
-                                                <h2 class="card__title"><i class="fas fa-user-edit"></i> Personal Information</h2>
-                                                <p class="card__description">Update your personal details here.</p>
+                                                <h2 class="card__title">Additional Information</h2>
+                                                <p class="card__description">Manage your account preferences and settings.</p>
                                             </div>
                                             <div class="card__content">
-                                                <form class="form" id="profileForm" novalidate>
-                                                    <div class="form__group">
-                                                        <label class="form__label" for="name">
-                                                            <i class="fas fa-user"></i> Full Name
-                                                        </label>
-                                                        <input type="text" id="name" class="form__input" value="John Doe" required>
-                                                        <span class="form__error"></span>
+                                                <div class="accordion">
+                                                    <div class="accordion__item">
+                                                        <button class="accordion__trigger">
+                                                            Delivery Preferences
+                                                            <svg class="accordion__icon" viewBox="0 0 24 24" width="24" height="24">
+                                                                <polyline points="6 9 12 15 18 9"/>
+                                                            </svg>
+                                                        </button>
+                                                        <div class="accordion__content">
+                                                            <div class="settings-group">
+                                                                <label class="toggle">
+                                                                    <input type="checkbox" class="toggle__input" checked>
+                                                                    <span class="toggle__slider"></span>
+                                                                    <span class="toggle__label">Contact-free delivery</span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div class="form__group">
-                                                        <label class="form__label" for="email">
-                                                            <i class="fas fa-envelope"></i> Email
-                                                        </label>
-                                                        <input type="email" id="email" class="form__input" value="john.doe@example.com" required>
-                                                        <span class="form__error"></span>
+                                                    <div class="accordion__item">
+                                                        <button class="accordion__trigger">
+                                                            Communication Preferences
+                                                            <svg class="accordion__icon" viewBox="0 0 24 24" width="24" height="24">
+                                                                <polyline points="6 9 12 15 18 9"/>
+                                                            </svg>
+                                                        </button>
+                                                        <div class="accordion__content">
+                                                            <div class="settings-group">
+                                                                <label class="toggle">
+                                                                    <input type="checkbox" class="toggle__input" checked>
+                                                                    <span class="toggle__slider"></span>
+                                                                    <span class="toggle__label">Email notifications</span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div class="form__group">
-                                                        <label class="form__label" for="phone">
-                                                            <i class="fas fa-phone"></i> Phone Number
-                                                        </label>
-                                                        <input type="tel" id="phone" class="form__input" value="(123) 456-7890" required>
-                                                        <span class="form__error"></span>
-                                                    </div>
-                                                    <div class="form__group">
-                                                        <label class="form__label" for="address">
-                                                            <i class="fas fa-map-marker-alt"></i> Address
-                                                        </label>
-                                                        <textarea id="address" class="form__input form__input--textarea" required>123 EasyGro Lane, Freshville, FG 12345</textarea>
-                                                        <span class="form__error"></span>
-                                                    </div>
-                                                </form>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Other tab panels remain the same but with added icons -->
+                                    <div class="tabs__panel" data-tab-content="orders">
+                                        <div class="card">
+                                            <div class="card__header">
+                                                <h2 class="card__title">Order History</h2>
+                                                <p class="card__description">Track and manage your orders.</p>
+                                            </div>
+                                            <div class="card__content">
+                                                <p class="empty-state">No orders found.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="tabs__panel" data-tab-content="wishlist">
+                                        <div class="card">
+                                            <div class="card__header">
+                                                <h2 class="card__title">Wishlist</h2>
+                                                <p class="card__description">Items you've saved for later.</p>
+                                            </div>
+                                            <div class="card__content">
+                                                <p class="empty-state">Your wishlist is empty.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="tabs__panel" data-tab-content="settings">
+                                        <div class="card">
+                                            <div class="card__header">
+                                                <h2 class="card__title">Account Settings</h2>
+                                                <p class="card__description">Manage your preferences.</p>
+                                            </div>
+                                            <div class="card__content">
+                                                <div class="settings-group">
+                                                    <label class="settings-group__label">Dark Mode</label>
+                                                    <p class="settings-group__description">Switch between light and dark themes.</p>
+                                                    <label class="toggle">
+                                                        <input type="checkbox" class="toggle__input" id="darkModeToggle">
+                                                        <span class="toggle__slider"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="settings-group">
+                                                    <label class="settings-group__label">Newsletter</label>
+                                                    <p class="settings-group__description">Receive updates about products and offers.</p>
+                                                    <label class="toggle">
+                                                        <input type="checkbox" class="toggle__input" checked>
+                                                        <span class="toggle__slider"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -210,46 +252,35 @@
             <div class="container">
                 <div class="footer__grid">
                     <div class="footer__column">
-                        <h3 class="footer__title"><i class="fas fa-leaf"></i> About EasyGro</h3>
-                        <p class="footer__text">Making grocery shopping easier and more convenient for everyone.</p>
+                        <h3 class="footer__title">About EasyGro</h3>
+                        <p>Making grocery shopping easier and more convenient.</p>
                     </div>
                     <div class="footer__column">
-                        <h3 class="footer__title"><i class="fas fa-link"></i> Quick Links</h3>
+                        <h3 class="footer__title">Quick Links</h3>
                         <ul class="footer__list">
-                            <li><a href="/about" class="footer__link"><i class="fas fa-info-circle"></i> About Us</a></li>
-                            <li><a href="/contact" class="footer__link"><i class="fas fa-envelope"></i> Contact</a></li>
-                            <li><a href="/faq" class="footer__link"><i class="fas fa-question-circle"></i> FAQ</a></li>
+                            <li><a href="/about" class="footer__link">About Us</a></li>
+                            <li><a href="/contact" class="footer__link">Contact</a></li>
+                            <li><a href="/faq" class="footer__link">FAQ</a></li>
                         </ul>
                     </div>
                     <div class="footer__column">
-                        <h3 class="footer__title"><i class="fas fa-gavel"></i> Legal</h3>
+                        <h3 class="footer__title">Legal</h3>
                         <ul class="footer__list">
-                            <li><a href="/privacy" class="footer__link"><i class="fas fa-shield-alt"></i> Privacy Policy</a></li>
-                            <li><a href="/terms" class="footer__link"><i class="fas fa-file-contract"></i> Terms of Service</a></li>
+                            <li><a href="/privacy" class="footer__link">Privacy Policy</a></li>
+                            <li><a href="/terms" class="footer__link">Terms of Service</a></li>
                         </ul>
                     </div>
                     <div class="footer__column">
-                        <h3 class="footer__title"><i class="fas fa-share-alt"></i> Connect</h3>
+                        <h3 class="footer__title">Connect</h3>
                         <div class="social-links">
                             <a href="#" class="social-links__item" aria-label="Facebook">
-                                <i class="fab fa-facebook-f"></i>
+                                <svg viewBox="0 0 24 24" width="24" height="24">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                                </svg>
                             </a>
                             <a href="#" class="social-links__item" aria-label="Twitter">
-                                <i class="fab fa-twitter"></i>
+                                <svg viewBox="0 0 24 24" width="24" height="24">
+                                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+                                </svg>
                             </a>
-                            <a href="#" class="social-links__item" aria-label="Instagram">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="footer__bottom">
-                    <p class="footer__copyright">© 2024 EasyGro. All rights reserved.</p>
-                </div>
-            </div>
-        </footer>
-    </div>
-
-    <script src="profile.js"></script>
-</body>
-</html>
+                            <a href="#" class="social-
