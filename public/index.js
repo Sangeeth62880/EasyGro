@@ -33,6 +33,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    
+
     async function updateCartCount() {
         try {
             // Get or create cart count element
@@ -125,6 +127,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
         });
     }
+
+
+    // Search functionality
+
 
     // Add event listeners only if elements exist
     if (filterSelect) {

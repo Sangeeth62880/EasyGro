@@ -321,6 +321,21 @@ profileForm?.addEventListener("submit", async (e) => {
     }
 });
 
+
+// Search functionality
+const searchInput = document.getElementById('searchInventory');
+searchInput.addEventListener('input', filterProducts);
+
+function filterProducts() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const filteredProducts = products.filter(product =>
+        product.name.toLowerCase().includes(searchTerm) ||
+        product.category.toLowerCase().includes(searchTerm)
+    );
+    renderProducts(filteredProducts);
+}
+
+
 // Notification system
 function showNotification(message, type = "success") {
     const notification = document.createElement("div");

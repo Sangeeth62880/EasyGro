@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Elements
     const orderModal = document.getElementById('orderModal');
     const confirmModal = document.getElementById('confirmModal');
@@ -13,22 +13,21 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentOrderId = null;
 
     // Set current username
-    document.getElementById('currentUserName').textContent = 'Sangeeth62880';
+    const userElement = document.getElementById('currentUserName');
+    if (userElement) userElement.textContent = 'Sangeeth62880';
 
     // Close modals when clicking close buttons
     Array.from(closeBtns).forEach(btn => {
         btn.addEventListener('click', () => {
-            orderModal.style.display = 'none';
-            confirmModal.style.display = 'none';
+            if (orderModal) orderModal.style.display = 'none';
+            if (confirmModal) confirmModal.style.display = 'none';
         });
     });
 
     // Close modals when clicking outside
     window.addEventListener('click', (e) => {
-        if (e.target === orderModal || e.target === confirmModal) {
-            orderModal.style.display = 'none';
-            confirmModal.style.display = 'none';
-        }
+        if (e.target === orderModal) orderModal.style.display = 'none';
+        if (e.target === confirmModal) confirmModal.style.display = 'none';
     });
 
     // Load initial data
@@ -36,30 +35,31 @@ document.addEventListener('DOMContentLoaded', function() {
     updateOrderStats();
     loadProducts();
 
-    // Search functionality
-    searchInput.addEventListener('input', debounce(() => {
+    // Search functionality (with null check)
+    searchInput?.addEventListener('input', debounce(() => {
         filterOrders();
     }, 300));
 
     // Filter change handlers
-    statusFilter.addEventListener('change', filterOrders);
-    dateFilter.addEventListener('change', filterOrders);
+    statusFilter?.addEventListener('change', filterOrders);
+    dateFilter?.addEventListener('change', filterOrders);
 
-    // Add product button handler
-    addProductBtn.addEventListener('click', () => {
+    // Add product button handler (null check)
+    addProductBtn?.addEventListener('click', () => {
         addProductField();
     });
 
     // Form submission handler
-    orderForm.addEventListener('submit', async (e) => {
+    orderForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
+
         const orderData = {
-            customerName: document.getElementById('customerName').value,
+            customerName: document.getElementById('customerName')?.value || '',
             products: Array.from(document.querySelectorAll('.product-item')).map(item => ({
-                productId: item.querySelector('.product-select').value,
-                quantity: parseInt(item.querySelector('.product-quantity').value)
+                productId: item.querySelector('.product-select')?.value,
+                quantity: parseInt(item.querySelector('.product-quantity')?.value) || 1
             })),
-            status: document.getElementById('status').value
+            status: document.getElementById('status')?.value || 'Pending'
         };
 
         try {
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 await createOrder(orderData);
             }
-            orderModal.style.display = 'none';
+            if (orderModal) orderModal.style.display = 'none';
             loadOrders();
             updateOrderStats();
         } catch (error) {
@@ -76,30 +76,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // ... rest of your existing functions ...
-
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-IN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        });
-    }
-
+    // Debounce function for search input
     function debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
             clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
+            timeout = setTimeout(() => func(...args), wait);
         };
     }
 
-    // Make functions globally available
+    // Global functions
     window.editOrder = (orderId) => openModal(orderId);
     window.updateOrderStatus = updateOrderStatus;
 });

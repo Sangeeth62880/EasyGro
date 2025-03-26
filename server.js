@@ -184,6 +184,34 @@ app.post('/cart', (req, res) => {
     });
 });
 
+app.post('/api/products', upload.single('image'), (req, res) => {
+    const { name, category, price } = req.body;
+    const image = req.file ? `images/${req.file.filename}` : 'images/guava.jpg'; // Use default image if none is uploaded
+
+    console.log('Received product data:', { name, category, price, image });
+
+    if (!name || !category || !price) {
+        console.error('Missing required fields:', { name, category, price });
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const query = 'INSERT INTO products (name, category, price, image) VALUES (?, ?, ?, ?)';
+    db.query(query, [name, category, parseFloat(price), image], (err, result) => {
+        if (err) {
+            console.error('Database error:', err.sqlMessage || err);
+            return res.status(500).json({ error: 'Database error', details: err.sqlMessage || err });
+        }
+
+        console.log('Product added successfully with ID:', result.insertId);
+        res.status(201).json({
+            id: result.insertId,
+            message: 'Product added successfully'
+        });
+    });
+});
+
+
+
 app.get('/cart/:user_id', (req, res) => {
     const { user_id } = req.params;
     const query = `
@@ -363,6 +391,49 @@ app.post('/api/products', (req, res) => {
     });
 });
 
+app.post('/api/products', (req, res) => {
+    const { name, category, price, stock = 0 } = req.body; // Ensure stock is included
+
+    if (!name || !category || !price) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const query = 'INSERT INTO products (name, category, price, stock) VALUES (?, ?, ?, ?)';
+    db.query(query, [name, category, parseFloat(price), parseInt(stock)], (err, result) => {
+        if (err) {
+            console.error('Error adding product:', err);
+            return res.status(500).json({ error: 'Error adding product' });
+        }
+
+        res.status(201).json({
+            id: result.insertId,
+            message: 'Product added successfully'
+        });
+    });
+});
+
+app.delete('/api/products/:id', (req, res) => {
+    const { id } = req.params;
+
+    // First, remove the product from all carts
+    db.query('DELETE FROM cart WHERE product_id = ?', [id], (err) => {
+        if (err) {
+            console.error('Error removing product from carts:', err);
+            return res.status(500).json({ error: 'Error deleting product from carts' });
+        }
+
+        // After removing from carts, delete the product
+        db.query('DELETE FROM products WHERE id = ?', [id], (err) => {
+            if (err) {
+                console.error('Error deleting product:', err);
+                return res.status(500).json({ error: 'Error deleting product' });
+            }
+            res.json({ message: 'Product deleted successfully' });
+        });
+    });
+});
+
+
 app.put('/api/products/:id', (req, res) => {
     const { id } = req.params;
     const { name, category, price } = req.body;
@@ -384,55 +455,89 @@ app.put('/api/products/:id', (req, res) => {
 
 app.delete('/api/products/:id', (req, res) => {
     const { id } = req.params;
+    const currentUser = 'Sangeeth62880';
+    const currentTimestamp = '2025-03-06 07:24:55';
 
-    db.query('SELECT * FROM cart WHERE product_id = ?', [id], (err, cartResults) => {
+    // First check if product exists
+    db.query('SELECT * FROM products WHERE id = ?', [id], (err, productResults) => {
         if (err) {
-            console.error('Error checking cart:', err);
-            return res.status(500).json({ error: 'Error checking product usage' });
-        }
-
-        if (cartResults.length > 0) {
-            return res.status(400).json({
-                error: 'Cannot delete product as it exists in customer carts'
+            console.error('Error checking product:', err);
+            return res.status(500).json({ 
+                error: 'Error checking product',
+                timestamp: currentTimestamp,
+                user: currentUser
             });
         }
 
-        db.query('SELECT * FROM inventory WHERE product_id = ?', [id], (err, invResults) => {
-            if (err) {
-                console.error('Error checking inventory:', err);
-                return res.status(500).json({ error: 'Error checking product usage' });
-            }
+        if (productResults.length === 0) {
+            return res.status(404).json({
+                error: 'Product not found',
+                timestamp: currentTimestamp,
+                user: currentUser
+            });
+        }
 
-            if (invResults.length > 0) {
-                return res.status(400).json({
-                    error: 'Cannot delete product as it exists in customer inventories'
+        // Check if product is referenced in purchases
+        db.query('SELECT * FROM purchases WHERE product_id = ?', [id], (err, purchaseResults) => {
+            if (err) {
+                console.error('Error checking purchases:', err);
+                return res.status(500).json({ 
+                    error: 'Error checking product usage',
+                    timestamp: currentTimestamp,
+                    user: currentUser
                 });
             }
 
-            db.query('SELECT image FROM products WHERE id = ?', [id], (err, results) => {
+            if (purchaseResults.length > 0) {
+                return res.status(400).json({
+                    error: 'Cannot delete product as it has purchase history',
+                    details: 'This product has been purchased and cannot be deleted',
+                    timestamp: currentTimestamp,
+                    user: currentUser
+                });
+            }
+
+            // Get product image before deletion
+            const productImage = productResults[0].image;
+
+            // Delete the product
+            db.query('DELETE FROM products WHERE id = ?', [id], (err) => {
                 if (err) {
-                    console.error('Error getting product image:', err);
-                    return res.status(500).json({ error: 'Error deleting product' });
+                    console.error('Error deleting product:', err);
+                    return res.status(500).json({ 
+                        error: 'Error deleting product',
+                        details: err.message,
+                        timestamp: currentTimestamp,
+                        user: currentUser
+                    });
                 }
 
-                db.query('DELETE FROM products WHERE id = ?', [id], (err) => {
-                    if (err) {
-                        console.error('Error deleting product:', err);
-                        return res.status(500).json({ error: 'Error deleting product' });
-                    }
-
-                    if (results[0] && results[0].image) {
-                        const imagePath = path.join(__dirname, 'public', results[0].image);
-                        try {
-                            if (fs.existsSync(imagePath)) {
-                                fs.unlinkSync(imagePath);
-                            }
-                        } catch (error) {
-                            console.error('Error deleting image file:', error);
+                // Delete image file if it exists and is not a default image
+                if (productImage && !productImage.includes('placeholder')) {
+                    const imagePath = path.join(__dirname, 'public', productImage);
+                    try {
+                        if (fs.existsSync(imagePath)) {
+                            fs.unlinkSync(imagePath);
+                            console.log(`Deleted image file: ${imagePath}`);
                         }
+                    } catch (error) {
+                        console.error('Error deleting image file:', error);
+                        // Continue execution even if image deletion fails
                     }
+                }
 
-                    res.json({ message: 'Product deleted successfully' });
+                // Log the successful deletion
+                console.log(`Product ${id} deleted by ${currentUser} at ${currentTimestamp}`);
+
+                res.json({
+                    message: 'Product deleted successfully',
+                    timestamp: currentTimestamp,
+                    user: currentUser,
+                    deletedProduct: {
+                        id: id,
+                        name: productResults[0].name,
+                        category: productResults[0].category
+                    }
                 });
             });
         });
@@ -503,6 +608,73 @@ app.get('/api/users', (req, res) => {
         res.json(results);
     });
 });
+
+
+// Add these routes to your server.js
+app.get('/api/users', (req, res) => {
+    const query = 'SELECT id, username, role FROM users';
+    
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching users:', err);
+            return res.status(500).json({ 
+                error: 'Error fetching users',
+                timestamp: getCurrentDateTime(),
+                user: 'Sangeeth62880'
+            });
+        }
+        
+        // Transform the results to match the expected format
+        const users = results.map(user => ({
+            id: user.id,
+            username: user.username,
+            role: user.role,
+            status: 'active', // Default status since it's not in your schema
+            last_login: null  // Default last_login since it's not in your schema
+        }));
+        
+        res.json(users);
+    });
+});
+
+// User stats endpoint
+app.get('/api/users/stats', (req, res) => {
+    const query = `
+        SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN role = 'admin' THEN 1 ELSE 0 END) as admins,
+            SUM(CASE WHEN role != 'admin' THEN 1 ELSE 0 END) as regular
+        FROM users
+    `;
+    
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching user stats:', err);
+            return res.status(500).json({ 
+                error: 'Error fetching user stats',
+                timestamp: getCurrentDateTime(),
+                user: 'Sangeeth62880'
+            });
+        }
+        
+        res.json(results[0]);
+    });
+});
+
+// Admin info endpoint
+app.get('/api/admin/info', (req, res) => {
+    res.json({
+        username: 'Sangeeth62880',
+        currentDateTime: getCurrentDateTime()
+    });
+});
+
+// Helper function to get current datetime
+function getCurrentDateTime() {
+    return new Date().toISOString().slice(0, 19).replace('T', ' ');
+}
+
+
 
 // Get user stats
 app.get('/api/users/stats', (req, res) => {

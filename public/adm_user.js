@@ -38,6 +38,45 @@ setInterval(updateDateTime, 1000);
 // Set current user
 document.getElementById('currentUserName').textContent = 'Sangeeth62880';
 
+// Add this near the top of your JavaScript file
+function showLoadingState() {
+    const tbody = document.getElementById('usersTableBody');
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="6" class="text-center">
+                <div class="loading">Loading users...</div>
+            </td>
+        </tr>
+    `;
+}
+
+// Modify the loadUsers function
+async function loadUsers() {
+    try {
+        showLoadingState();
+        const response = await fetch('/api/users');
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch users');
+        }
+        
+        const users = await response.json();
+        console.log('Loaded users:', users); // Debug log
+        displayUsers(users);
+    } catch (error) {
+        console.error('Error loading users:', error);
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-danger">
+                    Error loading users. Please try again.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+
 // You can also fetch this info from the server
 fetch('/api/admin/info')
     .then(response => response.json())
@@ -108,6 +147,46 @@ fetch('/api/admin/info')
             alert('Error: ' + error.message);
         }
     });
+
+
+    function displayUsers(users) {
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = '';
+    
+        if (!users || users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No users found</td></tr>';
+            return;
+        }
+    
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            const isCurrentAdmin = user.username === ADMIN_USERNAME;
+            
+            row.innerHTML = `
+                <td>${user.id}</td>
+                <td>${user.username}</td>
+                <td><span class="role-badge ${user.role}-role">${user.role}</span></td>
+                <td><span class="status-badge status-active">Active</span></td>
+                <td>-</td>
+                <td>
+                    ${!isCurrentAdmin ? `
+                        <button class="action-btn edit-btn" onclick="editUser(${user.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        ${user.role !== 'admin' ? `
+                            <button class="action-btn delete-btn" onclick="deleteUser(${user.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        ` : ''}
+                    ` : '<span class="current-user-badge">Current Admin</span>'}
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    
+        // Update user stats
+        updateUserStats();
+    }
 
     // Functions
     async function loadUsers() {

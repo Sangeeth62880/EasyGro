@@ -27,11 +27,135 @@ async function loadProducts() {
     try {
         const response = await fetch('/api/products');
         if (!response.ok) throw new Error('Failed to fetch products');
-        products = await response.json();
-        renderProducts();
+        
+        const data = await response.json();
+        console.log('Fetched products:', data); // Debug log
+        
+        // Ensure products is always an array
+        products = Array.isArray(data) ? data : [];
+        
+        if (products.length === 0) {
+            console.log('No products found'); // Debug log
+            inventoryTableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center;">No products found</td>
+                </tr>
+            `;
+        } else {
+            renderProducts();
+        }
     } catch (error) {
         console.error('Error loading products:', error);
         showNotification('Error loading products', 'error');
+        inventoryTableBody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center;">Error loading products</td>
+            </tr>
+        `;
+    }
+}
+async function handleProductSubmit(event) {
+    event.preventDefault();
+
+    const formData = new FormData(productForm);
+    const productData = new FormData();
+    productData.append('name', formData.get('productName'));
+    productData.append('category', formData.get('productCategory'));
+    productData.append('price', formData.get('productPrice'));
+
+    const imageFile = formData.get('productImage');
+    if (imageFile && imageFile.size > 0) {
+        productData.append('image', imageFile);
+    } else {
+        productData.append('image', new Blob(), 'guava.jpg'); // Send a default image
+    }
+
+    try {
+        const response = await fetch('/api/products', {
+            method: 'POST',
+            body: productData
+        });
+
+        const responseData = await response.json();
+        if (!response.ok) throw new Error(responseData.error || 'Failed to save product');
+
+        showNotification('Product added successfully', 'success');
+        closeModal();
+        await loadProducts();
+    } catch (error) {
+        console.error('Error saving product:', error);
+        showNotification(error.message || 'Error saving product', 'error');
+    }
+}
+
+
+
+// Add this function to handle image loading errors
+function handleImageError(img) {
+    img.onerror = () => {
+        img.src = '/images/placeholder.jpg';
+    };
+}
+
+async function handleProductSubmit(event) {
+    event.preventDefault();
+
+    const formData = new FormData(productForm);
+    const productData = {
+        name: formData.get('productName'),
+        category: formData.get('productCategory'),
+        price: parseFloat(formData.get('productPrice'))
+    };
+
+    try {
+        const url = currentProductId 
+            ? `/api/products/${currentProductId}`
+            : '/api/products';
+        
+        const method = currentProductId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(productData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to save product');
+        }
+
+        const result = await response.json();
+
+        // Handle image upload if a new image was selected
+        const imageFile = formData.get('productImage');
+        if (imageFile && imageFile.size > 0) {
+            const imageFormData = new FormData();
+            imageFormData.append('image', imageFile);
+            
+            const productId = currentProductId || result.product.id;
+            const uploadResponse = await fetch(`/api/products/${productId}/image`, {
+                method: 'POST',
+                body: imageFormData
+            });
+            
+            if (!uploadResponse.ok) {
+                throw new Error('Failed to upload image');
+            }
+        }
+
+        showNotification(
+            `Product ${currentProductId ? 'updated' : 'added'} successfully`,
+            'success'
+        );
+        
+        closeModal();
+        await loadProducts();
+    } catch (error) {
+        console.error('Error saving product:', error);
+        showNotification(error.message || 'Error saving product', 'error');
     }
 }
 
@@ -39,16 +163,20 @@ function renderProducts() {
     const filteredProducts = filterProductsList();
     inventoryTableBody.innerHTML = filteredProducts.map(product => `
         <tr>
-            <td><img src="${product.image_url || 'placeholder.jpg'}" alt="${product.name}"></td>
+            <td><img src="${product.image || '/images/placeholder.jpg'}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover;"></td>
             <td>${product.name}</td>
             <td>${product.category}</td>
-            <td>$${product.price.toFixed(2)}</td>
-            <td>${product.stock}</td>
+            <td>$${parseFloat(product.price).toFixed(2)}</td>
+            <td>${product.stock || 0}</td>
             <td>
-                <span class="status-badge ${product.stock > 0 ? 'status-in-stock' : 'status-out-of-stock'}">
-                    ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                <span class="status-badge ${(product.stock && product.stock > 0) ? 'status-in-stock' : 'status-out-of-stock'}">
+                    ${(product.stock && product.stock > 0) ? 'In Stock' : 'Out of Stock'}
                 </span>
             </td>
+            <td><img src="${product.image || '/images/guava.jpg'}" 
+         alt="${product.name}" 
+         onerror="this.src='/images/placeholder.jpg'"
+         style="width: 50px; height: 50px; object-fit: cover;"></td>
             <td class="action-buttons">
                 <button class="btn-edit" onclick="editProduct(${product.id})">
                     <i class="fas fa-edit"></i>
@@ -59,6 +187,24 @@ function renderProducts() {
             </td>
         </tr>
     `).join('');
+
+    // Update category filter options
+    updateCategoryFilter(filteredProducts);
+}
+
+function updateCategoryFilter(products) {
+    // Get unique categories
+    const categories = [...new Set(products.map(p => p.category))];
+    
+    // Clear current options except the default one
+    categoryFilter.innerHTML = '<option value="">All Categories</option>';
+    
+    // Add new options
+    categories.forEach(category => {
+        if (category) { // Only add if category exists
+            categoryFilter.innerHTML += `<option value="${category}">${category}</option>`;
+        }
+    });
 }
 
 function filterProductsList() {
@@ -166,16 +312,23 @@ async function deleteProduct(productId) {
 
     try {
         const response = await fetch(`/api/products/${productId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
         });
 
-        if (!response.ok) throw new Error('Failed to delete product');
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to delete product');
+        }
 
         showNotification('Product deleted successfully', 'success');
-        await loadProducts();
+        await loadProducts(); // Refresh the product list
     } catch (error) {
-        console.error('Error deleting product:', error);
-        showNotification('Error deleting product', 'error');
+        console.error('Error:', error);
+        showNotification(error.message || 'Error deleting product', 'error');
     }
 }
 
@@ -203,6 +356,72 @@ window.onclick = function(event) {
         closeModal();
     }
 }
+
+
+
+// Fixes applied to adm_inv.js (client-side JavaScript)
+async function handleProductSubmit(event) {
+    event.preventDefault();
+
+    const formData = new FormData(productForm);
+    const productData = {
+        name: formData.get('productName'),
+        category: formData.get('productCategory'),
+        price: parseFloat(formData.get('productPrice')),
+        stock: parseInt(formData.get('productStock')) || 0 // Ensure stock is included
+    };
+
+    try {
+        const url = currentProductId 
+            ? `/api/products/${currentProductId}`
+            : '/api/products';
+        
+        const method = currentProductId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(productData),
+        });
+
+        if (!response.ok) throw new Error('Failed to save product');
+
+        showNotification(`Product ${currentProductId ? 'updated' : 'added'} successfully`, 'success');
+        closeModal();
+        await loadProducts();
+    } catch (error) {
+        console.error('Error saving product:', error);
+        showNotification('Error saving product', 'error');
+    }
+}
+
+async function deleteProduct(productId) {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+
+    try {
+        const response = await fetch(`/api/products/${productId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to delete product');
+        }
+
+        showNotification('Product deleted successfully', 'success');
+        await loadProducts();
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification(error.message || 'Error deleting product', 'error');
+    }
+}
+
 
 // Add notification styles dynamically
 const style = document.createElement('style');
